@@ -57,26 +57,7 @@ def main_game(level_flag):
     star_speed = 0.2  # Скорость изменения звёзд на экране
     running = True
     main_font = pygame.font.Font(None, 36)
-    pygame.draw.rect(screen, color_grey_1, (0, 0, 750, 1000), 0)  # Отрисовка главный элементов игры
-    pygame.draw.rect(screen, color_grey_2, (742, 0, 8, 1000), 0)
-    pygame.draw.rect(screen, color_grey_2, (0, 0, 8, 1000), 0)
-    pygame.draw.rect(screen, color_grey_2, (0, 0, 750, 8), 0)
-    pygame.draw.rect(screen, color_grey_2, (0, 992, 750, 8), 0)
-    pygame.draw.rect(screen, color_grey_2, (0, 950, 750, 4), 0)
-    pygame.draw.rect(screen, color_grey_2, (0, 750, 750, 4), 0)
-    pygame.draw.rect(screen, color_grey_2, (584, 750, 4, 200), 0)
-    for i in range(1, 6):
-        pygame.draw.rect(screen, color_grey_2, (i * 96 + 4, 750, 4, 200), 0)
-        pygame.draw.rect(screen, color_grey_3, (i * 96, 754, 4, 196), 0)
-        pygame.draw.rect(screen, color_grey_3, ((i - 1) * 96 + 8, 846, 90, 4), 0)
-        pygame.draw.rect(screen, color_grey_3, ((i - 1) * 96 + 8, 946, 90, 4), 0)
-    pygame.draw.rect(screen, color_grey_3, (5 * 96 + 8, 846, 94, 4), 0)
-    pygame.draw.rect(screen, color_grey_3, (5 * 96 + 8, 946, 94, 4), 0)
-    pygame.draw.rect(screen, color_grey_3, (5 * 96 + 108, 946, 154, 4), 0)
-    pygame.draw.rect(screen, color_grey_3, (6 * 96 + 4, 754, 4, 194), 0)
-    pygame.draw.rect(screen, color_grey_3, (738, 754, 4, 196), 0)
-    pygame.draw.rect(screen, color_grey_2, (0, 850, 784, 4), 0)
-    pygame.draw.rect(screen, color_grey_3, (588, 846, 150, 4), 0)
+    pygame.draw.rect(screen, color_grey_2, (0, 0, 750, 1000), 0)  # Отрисовка элементов игры
     pygame.draw.rect(screen, color_grey_3, (8, 746, 734, 4), 0)
     pygame.draw.rect(screen, color_grey_3, (738, 8, 4, 740), 0)
     pygame.draw.rect(screen, color_grey_3, (8, 8, 734, 4), 0)
@@ -84,6 +65,19 @@ def main_game(level_flag):
     pygame.draw.rect(screen, color_display_1, (12, 12, 726, 734), 0)
     pygame.draw.rect(screen, color_display_2, (102, 600, 544, 4), 0)
     pygame.draw.rect(screen, color_display_2, (122, 640, 504, 4), 0)
+    for i in range(6):
+        pygame.draw.rect(screen, color_grey_1, (8 + 96 * i, 754, 92, 96), 0)
+        pygame.draw.rect(screen, color_grey_1, (8 + 96 * i, 854, 92, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (96 * (i + 1), 754, 4, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (8 + 96 * i, 846, 92, 4), 0)
+        pygame.draw.rect(screen, color_grey_3, (96 * (i + 1), 854, 4, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (8 + 96 * i, 946, 92, 4), 0)
+    for i in range(2):
+        delta = 100 * i
+        pygame.draw.rect(screen, color_grey_1, (584, 754 + delta, 158, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (738, 754 + delta, 4, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (584, 846 + delta, 158, 4), 0)
+    pygame.draw.rect(screen, color_grey_1, (8, 954, 734, 38), 0)
     pygame.display.flip()
     for i in range(1, 6):
         text_surface = main_font.render(f'{i - 1}', True, color_dig)
@@ -128,6 +122,7 @@ def main_game(level_flag):
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
+                print(x, y)
                 if not enter_flag:
                     if (854 <= y <= 950) and (588 <= x <= 740):
                         enter_flag = True
@@ -204,9 +199,9 @@ if __name__ == '__main__':
     pygame.display.set_caption('Название')  # установка названия окна
     clock = pygame.time.Clock()
     color_dig = 'black'  # цвет символов на клавиатуре
-    color_grey_1 = (108, 108, 108)  # основной цвет для объектов
-    color_grey_2 = (138, 138, 138)  # дополнительный цвет для теней и детализации объектов
-    color_grey_3 = (88, 88, 88)  # дополнительный цвет для детализации объектов
+    color_grey_1 = (108, 108, 108)  # цвет детализации объектов
+    color_grey_2 = (138, 138, 138)  # основной цвет для крупных объектов
+    color_grey_3 = (88, 88, 88)  # цвет для теней и детализации объектов
     color_display_1 = (14, 88, 14)  # основной цвет для экрана бортового компьютера
     color_display_2 = (39, 144, 75)  # основной цвет для объектов экрана бортового компьютера
     color_display_3 = (39, 180, 75)  # дополнительный цвет для объектов экрана бортового компьютера
