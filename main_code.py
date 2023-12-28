@@ -1,114 +1,210 @@
 import pygame
 import random
+import sys
 
-if __name__ == '__main__':
-    pygame.init()  # Инициализация
-    size = width, height = 1500, 1000  # Установка параметров окна
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption('Название')
-    pygame.display.flip()
-    running = True
-    clock = pygame.time.Clock()
-    stars = [(random.randint(755, width - 1), random.randint(0, height)) for _ in range(100)]
-    star_speed = 0.1  # Скорость изменения звёзд на экране
-    screen.fill('black')  # Отрисовка элементов главного экрана игры
-    list_with_numbers = [i for i in range(9, 999)]
-    random.shuffle(list_with_numbers)
-    num1, num2 = random.choice(list_with_numbers), random.choice(list_with_numbers)
-    print(f'{num1} + {num2} = ?')
-    pygame.draw.rect(screen, (108, 108, 108), (0, 0, 750, 1000), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (742, 0, 8, 1000), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (0, 0, 8, 1000), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (0, 0, 750, 8), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (0, 992, 750, 8), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (0, 950, 750, 4), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (0, 750, 750, 4), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (584, 750, 4, 200), 0)
-    for i in range(1, 6):
-        pygame.draw.rect(screen, (138, 138, 138), (i * 96 + 4, 750, 4, 200), 0)
-        pygame.draw.rect(screen, (88, 88, 88), (i * 96, 754, 4, 196), 0)
-        pygame.draw.rect(screen, (88, 88, 88), ((i - 1) * 96 + 8, 846, 90, 4), 0)
-        pygame.draw.rect(screen, (88, 88, 88), ((i - 1) * 96 + 8, 946, 90, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (5 * 96 + 8, 846, 94, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (5 * 96 + 8, 946, 94, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (5 * 96 + 108, 946, 154, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (6 * 96 + 4, 754, 4, 194), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (738, 754, 4, 196), 0)
-    pygame.draw.rect(screen, (138, 138, 138), (0, 850, 584, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (8, 746, 734, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (738, 8, 4, 740), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (8, 8, 734, 4), 0)
-    pygame.draw.rect(screen, (88, 88, 88), (8, 8, 4, 742), 0)
-    pygame.draw.rect(screen, (14, 88, 14), (12, 12, 726, 734), 0)
-    pygame.draw.rect(screen, (39, 144, 75), (102, 600, 544, 4), 0)
-    pygame.draw.rect(screen, (39, 144, 75), (122, 640, 504, 4), 0)
-    pygame.draw.line(screen, (39, 144, 75), (102, 600), (122, 641), 4)
-    pygame.draw.line(screen, (39, 144, 75), (646, 600), (624, 643), 4)
-    pygame.display.flip()
 
-    color_dig = 'white'
+def terminate():  # Функция для завершения работы игры
+    pygame.quit()
+    sys.exit()
 
-    for i in range(1, 6):
-        font = pygame.font.Font(None, 36)
-        text_surface = font.render(f'{i-1}', True, color_dig)
-        screen.blit(text_surface, (i * 96 + 4 - 55, 790))
 
-    for i in range(1, 6):
-        font = pygame.font.Font(None, 36)
-        text_surface = font.render(f'{i+4}', True, color_dig)
-        screen.blit(text_surface, (i * 96 + 4 - 55, 890))
-
-    font = pygame.font.Font(None, 36)
-    text_surface = font.render(f'+', True, color_dig)
-    screen.blit(text_surface, (527, 787))
-
-    font = pygame.font.Font(None, 36)
-    text_surface = font.render(f'-', True, color_dig)
-    screen.blit(text_surface, (530, 887))
-
-    font = pygame.font.Font(None, 36)
-    text_surface = font.render(f'Enter', True, color_dig)
-    screen.blit(text_surface, (630, 887))
-    font = pygame.font.Font(None, 36)
-    text_surface = font.render('Привет, мир!', True, 'white')
-    screen.blit(text_surface, (300, 300))
-
-    while running:  # Главный игровой цикл
+def start_screen():
+    for i in range(200):
+        screen.fill(pygame.Color('white'),
+                    (random.random() * width,
+                     random.random() * height, 2, 2))
+    for i in range(4):
+        pygame.draw.rect(screen, color_grey_1, (600, i * 200 + 200, 300, 80), 0)
+        pygame.draw.rect(screen, color_grey_3, (600, i * 200 + 200, 300, 4), 0)
+        pygame.draw.rect(screen, color_grey_3, (600, i * 200 + 276, 300, 4), 0)
+        pygame.draw.rect(screen, color_grey_3, (600, i * 200 + 200, 4, 80), 0)
+        pygame.draw.rect(screen, color_grey_3, (896, i * 200 + 200, 4, 80), 0)
+    level_flag = True
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if y >= 754 and y <= 850:
-                    if x >= 8 and x <= 100:
-                        print('0')
-                    elif x >= 8 + 100 * 1 and x <= 100 + 96 * 1:
-                        print('1')
-                    elif x >= 8 + 100 * 2 and x <= 100 + 96 * 2:
-                        print('2')
-                    elif x >= 8 + 100 * 3 and x <= 100 + 96 * 3:
-                        print('3')
-                    elif x >= 8 + 100 * 4 and x <= 100 + 96 * 4:
-                        print('4')
-                    elif x >= 8 + 100 * 5 and x <= 100 + 96 * 5:
-                        print('+')
-                elif y >= 754 + 100 and y <= 850 + 100:
-                    if x >= 8 and x <= 100:
-                        print('5')
-                    elif x >= 8 + 100 * 1 and x <= 100 + 96 * 1:
-                        print('6')
-                    elif x >= 8 + 100 * 2 and x <= 100 + 96 * 2:
-                        print('7')
-                    elif x >= 8 + 100 * 3 and x <= 100 + 96 * 3:
-                        print('8')
-                    elif x >= 8 + 100 * 4 and x <= 100 + 96 * 4:
-                        print('9')
-                    elif x >= 8 + 100 * 5 and x <= 100 + 96 * 5:
-                        print('-')
+                if 600 <= x <= 900:
+                    if 200 <= y <= 280:
+                        return level_flag  # начинаем игру, функция возвращает выбранный уровень сложности
+                    elif 400 <= y <= 480:
+                        level_flag = True
+                    elif 600 <= y <= 680:
+                        level_flag = False
+                    elif 800 <= y <= 880:
+                        print('Лучшие результаты')
+            font = pygame.font.Font(None, 36)
+            txt_list = ['Начать игру', 'Уровень сложности 1', 'Уровень сложности 2', 'Лучшие результаты']
+            x_txt_list = [680, 620, 620, 630]
+            for i in range(4):
+                text_surface = font.render(txt_list[i], True, color_dig)
+                screen.blit(text_surface, (x_txt_list[i], i * 200 + 230))
+            pygame.draw.rect(screen, color_grey_1, (620, 454, 260, 6), 0)
+            pygame.draw.rect(screen, color_grey_1, (620, 656, 260, 6), 0)
+            if level_flag:
+                pygame.draw.rect(screen, color_dig, (620, 454, 260, 6), 0)
+                pygame.draw.rect(screen, color_dig, (620, 656, 260, 6), 1)
+            else:
+                pygame.draw.rect(screen, color_dig, (620, 454, 260, 6), 1)
+                pygame.draw.rect(screen, color_dig, (620, 656, 260, 6), 0)
+            pygame.display.flip()
 
+
+def main_game(level_flag):
+    stars = [(random.randint(755, width - 1), random.randint(0, height)) for _ in range(100)]
+    star_speed = 0.2  # Скорость изменения звёзд на экране
+    running = True
+    main_font = pygame.font.Font(None, 36)
+    pygame.draw.rect(screen, color_grey_2, (0, 0, 750, 1000), 0)  # Отрисовка элементов игры
+    pygame.draw.rect(screen, color_grey_3, (8, 746, 734, 4), 0)
+    pygame.draw.rect(screen, color_grey_3, (738, 8, 4, 740), 0)
+    pygame.draw.rect(screen, color_grey_3, (8, 8, 734, 4), 0)
+    pygame.draw.rect(screen, color_grey_3, (8, 8, 4, 742), 0)
+    pygame.draw.rect(screen, color_display_1, (12, 12, 726, 734), 0)
+    pygame.draw.rect(screen, color_display_2, (102, 600, 544, 4), 0)
+    pygame.draw.rect(screen, color_display_2, (122, 640, 504, 4), 0)
+    for i in range(6):
+        pygame.draw.rect(screen, color_grey_1, (8 + 96 * i, 754, 92, 96), 0)
+        pygame.draw.rect(screen, color_grey_1, (8 + 96 * i, 854, 92, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (96 * (i + 1), 754, 4, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (8 + 96 * i, 846, 92, 4), 0)
+        pygame.draw.rect(screen, color_grey_3, (96 * (i + 1), 854, 4, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (8 + 96 * i, 946, 92, 4), 0)
+    for i in range(2):
+        delta = 100 * i
+        pygame.draw.rect(screen, color_grey_1, (584, 754 + delta, 158, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (738, 754 + delta, 4, 96), 0)
+        pygame.draw.rect(screen, color_grey_3, (584, 846 + delta, 158, 4), 0)
+    pygame.draw.rect(screen, color_grey_1, (8, 954, 734, 38), 0)
+    pygame.display.flip()
+    for i in range(1, 6):
+        text_surface = main_font.render(f'{i - 1}', True, color_dig)
+        screen.blit(text_surface, (i * 96 + 4 - 55, 790))
+    for i in range(1, 6):
+        text_surface = main_font.render(f'{i + 4}', True, color_dig)
+        screen.blit(text_surface, (i * 96 + 4 - 55, 890))
+
+    text_surface = main_font.render(f'+', True, color_dig)
+    screen.blit(text_surface, (527, 787))
+    text_surface = main_font.render(f'-', True, color_dig)
+    screen.blit(text_surface, (530, 887))
+    text_surface = main_font.render(f'Enter', True, color_dig)
+    screen.blit(text_surface, (630, 887))
+    text_surface = main_font.render(f'Delete', True, color_dig)
+    screen.blit(text_surface, (625, 790))
+
+    numbers_list_level_1 = [i for i in range(9, 999)]
+    numbers_list_level_2 = [i for i in range(11, 99)]
+    if level_flag:  # Вывод параметров относительно уровня сложности
+        num1, num2 = random.choice(numbers_list_level_1), random.choice(numbers_list_level_1)
+        correct_answer = num1 + num2
+        text_surface = main_font.render(f'{num1} + {num2} = ?', True, color_display_3)
+    else:
+        num1, num2 = random.choice(numbers_list_level_2), random.choice(numbers_list_level_2)
+        correct_answer = num1 * num2
+        text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
+    screen.blit(text_surface, (300, 300))
+
+    input_numbers, minus_or_plus_flag, enter_flag = list(), True, False  # переменные для работы с ответами пользователя
+
+    while running:  # Главный игровой цикл
         stars = [(star[0], (star[1] + star_speed) % height) for star in stars]  # Изменение координат звезд
         pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
         for star in stars:
             pygame.draw.circle(screen, (255, 255, 255), star, 1)
         pygame.display.flip()
-    pygame.quit()  # Завершение работы
+        player_answer = ''
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                terminate()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                print(x, y)
+                if not enter_flag:
+                    if (854 <= y <= 950) and (588 <= x <= 740):
+                        enter_flag = True
+                    elif (754 <= y <= 850) and (588 <= x <= 740):
+                        if len(input_numbers) > 0:
+                            input_numbers.pop()
+                    elif 754 <= y <= 850:
+                        if 8 <= x <= 100:
+                            input_numbers.append(0)
+                        elif 8 + 100 * 1 <= x <= 100 + 96 * 1:
+                            input_numbers.append(1)
+                        elif 8 + 100 * 2 <= x <= 100 + 96 * 2:
+                            input_numbers.append(2)
+                        elif 8 + 100 * 3 <= x <= 100 + 96 * 3:
+                            input_numbers.append(3)
+                        elif 8 + 100 * 4 <= x <= 100 + 96 * 4:
+                            input_numbers.append(4)
+                        elif 8 + 100 * 5 <= x <= 100 + 96 * 5:
+                            minus_or_plus_flag = True
+                    elif 854 <= y <= 950:
+                        if 8 <= x <= 100:
+                            input_numbers.append(5)
+                        elif 8 + 100 * 1 <= x <= 100 + 96 * 1:
+                            input_numbers.append(6)
+                        elif 8 + 100 * 2 <= x <= 100 + 96 * 2:
+                            input_numbers.append(7)
+                        elif 8 + 100 * 3 <= x <= 100 + 96 * 3:
+                            input_numbers.append(8)
+                        elif 8 + 100 * 4 <= x <= 100 + 96 * 4:
+                            input_numbers.append(9)
+                        elif 8 + 100 * 5 <= x <= 100 + 96 * 5:
+                            minus_or_plus_flag = False
+                    print_numbers = list()
+                    to_add_and_print = ''
+                    if not minus_or_plus_flag:
+                        to_add_and_print = '-'
+                    for i in range(len(input_numbers)):
+                        if i <= 24:
+                            print_numbers.append(str(input_numbers[i]))
+                        else:
+                            break
+                    player_answer = to_add_and_print + ''.join(print_numbers)
+                    pygame.draw.rect(screen, color_display_1, (122, 620, 504, 20), 0)
+                    text_surface = main_font.render(player_answer, True, color_display_3)
+                    screen.blit(text_surface, (142, 620))
+                    pygame.draw.rect(screen, color_display_2, (122, 640, 504, 4), 0)
+                    input_numbers = [int(i) for i in print_numbers]
+        if enter_flag:
+            print(correct_answer)
+            if int(player_answer) == correct_answer:
+                print('win')
+            else:
+                print('lose')
+            enter_flag = False
+            input_numbers.clear()
+            pygame.draw.rect(screen, color_display_1, (122, 620, 504, 20), 0)
+            pygame.draw.rect(screen, color_display_1, (200, 200, 400, 400), 0)
+            if level_flag:
+                num1, num2 = random.choice(numbers_list_level_1), random.choice(numbers_list_level_1)
+                correct_answer = num1 + num2
+                text_surface = main_font.render(f'{num1} + {num2} = ?', True, color_display_3)
+            else:
+                num1, num2 = random.choice(numbers_list_level_2), random.choice(numbers_list_level_2)
+                correct_answer = num1 * num2
+                text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
+            screen.blit(text_surface, (300, 300))
+        pygame.display.flip()
+
+
+if __name__ == '__main__':
+    pygame.init()  # инициализация
+    size = width, height = 1500, 1000  # установка параметров размера окна
+    screen = pygame.display.set_mode(size)  # создание окна
+    pygame.display.set_caption('Название')  # установка названия окна
+    clock = pygame.time.Clock()
+    color_dig = 'black'  # цвет символов на клавиатуре
+    color_grey_1 = (108, 108, 108)  # цвет детализации объектов
+    color_grey_2 = (138, 138, 138)  # основной цвет для крупных объектов
+    color_grey_3 = (88, 88, 88)  # цвет для теней и детализации объектов
+    color_display_1 = (14, 88, 14)  # основной цвет для экрана бортового компьютера
+    color_display_2 = (39, 144, 75)  # основной цвет для объектов экрана бортового компьютера
+    color_display_3 = (39, 180, 75)  # дополнительный цвет для объектов экрана бортового компьютера
+    screen.fill('black')
+    need_flag = start_screen()  # загрузка меню
+    main_game(need_flag)  # загрузка основного этапа игры с передачей уровня сложности
