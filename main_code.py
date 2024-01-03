@@ -2,6 +2,7 @@ import pygame
 import random
 import sys
 
+
 def terminate():  # Функция для завершения работы игры
     pygame.quit()
     sys.exit()
@@ -51,22 +52,9 @@ def start_screen():
             pygame.display.flip()
 
 
-def end_game(points):
-    pygame.draw.rect(screen, color_grey_3, (width // 2, height // 2, 100, 50), 0)
-    font = pygame.font.Font(None, 36)
-    text_answer = font.render(f'Ваш счёт {points}', True, (155, 155, 155))
-    text_width, text_height = text_answer.get_size()
-    text_x, text_y = width // 2, height // 2
-    screen.fill((0, 0, 0), (text_x, text_y, text_width, text_height))
-    screen.blit(text_answer, (text_x, text_y))
-    pygame.display.flip()
-    print('sos')
-
-
 def main_game(level_flag):
     stars = [(random.randint(755, width - 1), random.randint(0, height)) for _ in range(100)]
-
-    star_speed = 0.2  # Скорость изменения звёзд на экране
+    star_speed = 0.6  # Скорость изменения звёзд на экране
     running = True
     main_font = pygame.font.Font(None, 36)
     pygame.draw.rect(screen, color_grey_2, (0, 0, 750, 1000), 0)  # Отрисовка элементов игры
@@ -90,6 +78,11 @@ def main_game(level_flag):
         pygame.draw.rect(screen, color_grey_3, (738, 754 + delta, 4, 96), 0)
         pygame.draw.rect(screen, color_grey_3, (584, 846 + delta, 158, 4), 0)
     pygame.draw.rect(screen, color_grey_1, (8, 954, 734, 38), 0)
+    pygame.draw.rect(screen, color_grey_3, (8, 954, 734, 4), 0)
+    pygame.draw.rect(screen, color_grey_3, (8, 992, 734, 4), 0)
+    pygame.draw.rect(screen, color_grey_3, (8, 954, 4, 38), 0)
+    pygame.draw.rect(screen, color_grey_3, (738, 954, 4, 38), 0)
+    pygame.draw.rect(screen, color_display_1, (12, 958, 726, 34), 0)
     pygame.display.flip()
     for i in range(1, 6):
         text_surface = main_font.render(f'{i - 1}', True, color_dig)
@@ -107,8 +100,8 @@ def main_game(level_flag):
     text_surface = main_font.render(f'Delete', True, color_dig)
     screen.blit(text_surface, (625, 790))
 
-    numbers_list_level_1 = [i for i in range(9, 999)]
-    numbers_list_level_2 = [i for i in range(11, 99)]
+    numbers_list_level_1 = [i for i in range(11, 999)] + [i for i in range(-999, -11)]
+    numbers_list_level_2 = [i for i in range(11, 99)] + [i for i in range(-99, -11)]
     if level_flag:  # Вывод параметров относительно уровня сложности
         num1, num2 = random.choice(numbers_list_level_1), random.choice(numbers_list_level_1)
         correct_answer = num1 + num2
@@ -120,38 +113,40 @@ def main_game(level_flag):
     screen.blit(text_surface, (300, 300))
 
     input_numbers, minus_or_plus_flag, enter_flag = list(), True, False  # переменные для работы с ответами пользователя
-
-    total_time = 2  # Время в секундах
+    if need_flag:  # Начальное время в секундах
+        total_time = 11
+    else:
+        total_time = 21
     start_ticks = pygame.time.get_ticks()
     points = 0
 
-
-
+    all_sprites = pygame.sprite.Group()   # Создание картинки для спрайта корабля
+    ship_image = pygame.image.load("data/ship2.png")
+    ship_image = pygame.transform.scale(ship_image, (250, 250))
+    starship = pygame.sprite.Sprite(all_sprites)  # Создание спрайта космического корабля
+    starship.image = ship_image
+    starship.rect = starship.image.get_rect()
+    starship.rect.x = 1000
+    starship.rect.y = 700
+    all_sprites.draw(screen)  # Отображение всех спрайтов на экране
 
     while running:  # Главный игровой цикл
-        font = pygame.font.Font(None, 36)
-        seconds = (pygame.time.get_ticks() - start_ticks) / 1000  # calculate how many seconds
-        # Отображение времени на экране
-        time_cur = total_time - int(seconds) - 1
-        text_time = font.render(f'{time_cur}', True, (155, 155, 155))
-        text_width, text_height = text_time.get_size()
-        text_x, text_y = 150, 960
-
-        # Заполняем область с текстом сплошным чёрным цветом
-        screen.fill((0, 0, 0), (text_x, text_y, text_width, text_height))
-        screen.blit(text_time, (text_x, text_y))
+        seconds = (pygame.time.get_ticks() - start_ticks) / 1000  # Посчитать нужное количество секунд
+        time_cur = total_time - int(seconds) - 1  # Отображение времени на экране
+        if time_cur < 0:
+            time_cur = -1
+        if time_cur >= 0:
+            text_time = main_font.render(f'{time_cur}', True, color_display_2)
+            text_x, text_y = 360, 964
+            pygame.draw.rect(screen, color_display_1, (12, 958, 726, 34), 0)
+            screen.blit(text_time, (text_x, text_y))
 
         stars = [(star[0], (star[1] + star_speed) % height) for star in stars]  # Изменение координат звезд
         pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
         for star in stars:
             pygame.draw.circle(screen, (255, 255, 255), star, 1)
 
-        ship = pygame.image.load("data/ship2.png").convert_alpha()
-        ship = pygame.transform.scale(ship, (222, 222))
-        # Отображение изображения на экране
-        screen.blit(ship, (1000, 600))
-
-
+        all_sprites.draw(screen)  # Отображение всех спрайтов на экране
         pygame.display.flip()
         player_answer = ''
         for event in pygame.event.get():
@@ -160,6 +155,7 @@ def main_game(level_flag):
                 terminate()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
+                print(x, y)
                 if not enter_flag:
                     if (854 <= y <= 950) and (588 <= x <= 740):
                         enter_flag = True
@@ -208,17 +204,16 @@ def main_game(level_flag):
                     pygame.draw.rect(screen, color_display_2, (122, 640, 504, 4), 0)
                     input_numbers = [int(i) for i in print_numbers]
         if enter_flag:
-
             print(correct_answer)
             if player_answer == '':
                 player_answer = 0
             if int(player_answer) == correct_answer:
-                print('win')
-                points += 1
-                total_time += 10
-            elif time_cur == 0:
-                # end_game(points)
-                print('lose')
+                if need_flag:
+                    total_time += 11
+                else:
+                    total_time += 21
+                if total_time > points:
+                    points = total_time
             enter_flag = False
             input_numbers.clear()
             pygame.draw.rect(screen, color_display_1, (122, 620, 504, 20), 0)
@@ -232,38 +227,20 @@ def main_game(level_flag):
                 correct_answer = num1 * num2
                 text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
             screen.blit(text_surface, (300, 300))
-
-        # Создание поверхности для прямоугольника
         if time_cur <= 0:
-
             rect_surface = pygame.Surface((width, height))
             rect_surface.set_alpha(1)  # Устанавливаем прозрачность (0 - полностью прозрачно, 255 - непрозрачно)
-            # Заливка поверхности цветом
-            rect_surface.fill((0, 0, 0))  # Например, красный цвет
-
-            # Отображение прямоугольника на экране
-            screen.blit(rect_surface, (0, 0))
-
-            font = pygame.font.Font(None, 36)
-
-
-            text_big = font.render(f'Ваш счёт {points}', True, (155, 155, 155))
-            text_big_width, text_big_height = text_time.get_size()
-            text_big_x, text_big_y = width//4, height//2
+            rect_surface.fill((0, 0, 0))  # Заливка поверхности чёрным цветом
+            screen.blit(rect_surface, (0, 0))  # Отображение прямоугольника на экране
+            text_big = main_font.render(f'Ваш рекорд: {points}', True, (155, 155, 155))
+            text_big_x, text_big_y = width // 4, height // 2
             screen.blit(text_big, (text_big_x, text_big_y))
-
-
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     terminate()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.pos and time_cur <= 0:
-                        main_game(1)
-
-        # Загрузка изображения
-
-
+                    if time_cur == -1:
+                        main_game(need_flag)
 
 
 if __name__ == '__main__':
@@ -272,7 +249,6 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)  # создание окна
     pygame.display.set_caption('Название')  # установка названия окна
     clock = pygame.time.Clock()
-    # clock.tick(6000)
     color_dig = 'black'  # цвет символов на клавиатуре
     color_grey_1 = (108, 108, 108)  # цвет детализации объектов
     color_grey_2 = (138, 138, 138)  # основной цвет для крупных объектов
