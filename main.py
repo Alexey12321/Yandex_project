@@ -127,7 +127,6 @@ def main_game(level_flag):
     meteorite.rect = meteorite.image.get_rect()
     meteorite.rect.x = 975
     meteorite.rect.y = 100
-    meteorite_pos = 500
     starship_group.draw(screen)  # Отображение спрайта корабля на экране
 
     while main_running:  # Главный игровой цикл
@@ -184,7 +183,10 @@ def main_game(level_flag):
             screen.blit(text_surface, (300, 500))
             player_answer = ''
             time_add = total_time
+            times = [total_time]
+
             while running:  # Дополнительный игровой цикл
+
                 stars = [(star[0], (star[1] + star_speed) % height) for star in stars]  # Изменение координат звезд
                 pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
                 for star in stars:
@@ -192,12 +194,15 @@ def main_game(level_flag):
                 starship_group.draw(screen)  # Отображение спрайта корабля на экране
                 meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
                 seconds = (pygame.time.get_ticks() - start_ticks) / 1000  # Подсчёт времени
-                speed = int(450 / total_time)
                 time_cur = total_time - int(seconds) - 1
+
+                # для движения метеорита
+
+                speed = math.ceil(460 / times[-1])
                 if time_add != time_cur:
                     meteorite.rect.y += speed
+                    print(f'скорость: {speed}, time: {times[-1]} ')
                 time_add = time_cur
-                # изменение координат метеорита
 
                 if time_cur < 0:
                     time_cur = -1
@@ -261,16 +266,21 @@ def main_game(level_flag):
                             pygame.draw.rect(screen, color_display_2, (122, 640, 504, 4), 0)
                             input_numbers = [int(i) for i in print_numbers]
                 if enter_flag:
-                    print(correct_answer)
                     if player_answer == '' or player_answer == '-':
                         player_answer = 0
                     if int(player_answer) == correct_answer:
+                        meteorite.rect.y = 100
                         if level_flag:
                             total_time += 16
+                            times.append(time_cur +16)
                         else:
                             total_time += 26
+                            times.append(time_cur + 26)
                         if total_time > points:
                             points = total_time
+
+
+
                     enter_flag = False
                     input_numbers.clear()
                     pygame.draw.rect(screen, color_display_1, (122, 620, 504, 20), 0)
@@ -283,6 +293,7 @@ def main_game(level_flag):
                         num1, num2 = random.choice(numbers_list_level_2), random.choice(numbers_list_level_2)
                         correct_answer = num1 * num2
                         text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
+                    print(correct_answer)
                     screen.blit(text_surface, (300, 500))
                 if time_cur < 0:
                     run_flag = True
@@ -300,10 +311,6 @@ def main_game(level_flag):
                     pygame.display.flip()
                     while run_flag:
                         run_flag = False
-
-                        # Вот здесь должен быть код, запускающий падение астероида,
-                        # пока он не столкнётся (столкновение обязательно) с космическим кораблём
-
                         starship_group.draw(screen)  # Отображение спрайта корабля на экране
                         meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
                         pygame.display.flip()
