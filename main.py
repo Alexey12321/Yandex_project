@@ -1,3 +1,5 @@
+import math
+import sqlite3
 import pygame
 import random
 import sys
@@ -7,8 +9,9 @@ def terminate():  # Функция для завершения работы иг
     pygame.quit()
     sys.exit()
 
-
+best_results = []
 def start_screen():
+    clock.tick(60)
     screen.fill('black')
     for i in range(200):
         screen.fill(pygame.Color('white'),
@@ -124,6 +127,7 @@ def main_game(level_flag):
     meteorite.rect = meteorite.image.get_rect()
     meteorite.rect.x = 975
     meteorite.rect.y = 100
+    meteorite_pos = 500
     starship_group.draw(screen)  # Отображение спрайта корабля на экране
 
     while main_running:  # Главный игровой цикл
@@ -166,7 +170,7 @@ def main_game(level_flag):
             start_ticks = pygame.time.get_ticks()
             star_speed = 0.1  # Замедление движения звёзд во время события с метеоритом
             if level_flag:  # Начальное время в секундах
-                total_time = 16
+                total_time = 10
             else:
                 total_time = 26
             if level_flag:  # Вывод параметров относительно уровня сложности
@@ -179,6 +183,7 @@ def main_game(level_flag):
                 text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
             screen.blit(text_surface, (300, 500))
             player_answer = ''
+            time_add = total_time
             while running:  # Дополнительный игровой цикл
                 stars = [(star[0], (star[1] + star_speed) % height) for star in stars]  # Изменение координат звезд
                 pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
@@ -187,7 +192,13 @@ def main_game(level_flag):
                 starship_group.draw(screen)  # Отображение спрайта корабля на экране
                 meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
                 seconds = (pygame.time.get_ticks() - start_ticks) / 1000  # Подсчёт времени
+                speed = int(450 / total_time)
                 time_cur = total_time - int(seconds) - 1
+                if time_add != time_cur:
+                    meteorite.rect.y += speed
+                time_add = time_cur
+                # изменение координат метеорита
+
                 if time_cur < 0:
                     time_cur = -1
                 if time_cur >= 0:
@@ -289,8 +300,10 @@ def main_game(level_flag):
                     pygame.display.flip()
                     while run_flag:
                         run_flag = False
+
                         # Вот здесь должен быть код, запускающий падение астероида,
                         # пока он не столкнётся (столкновение обязательно) с космическим кораблём
+
                         starship_group.draw(screen)  # Отображение спрайта корабля на экране
                         meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
                         pygame.display.flip()
@@ -300,6 +313,25 @@ def main_game(level_flag):
 def end_game(player_score, level_flag):
     main_font = pygame.font.Font(None, 30)
     score_text = main_font.render(f'Ваш рекорд: {player_score}', True, (155, 155, 155))
+    # Устанавливаем соединение с базой данных
+    conn = sqlite3.connect('example.db')
+
+    # Создаем курсор для выполнения операций с базой данных
+    c = conn.cursor()
+
+    # Выполняем SQL-запрос для создания таблицы (если она не существует)
+    c.execute('''CREATE TABLE IF NOT EXISTS numbers (value INTEGER)''')
+
+    # Вставляем число в таблицу
+    number = player_score
+    c.execute("INSERT INTO numbers (value) VALUES (?)", (number,))
+
+    # Сохраняем изменения
+    conn.commit()
+
+    # Закрываем соединение с базой данных
+    conn.close()
+
     screen.blit(score_text, (width // 2 - 80, height // 2))
     pygame.draw.rect(screen, color_grey_1, (150, 460, 250, 80), 0)
     pygame.draw.rect(screen, color_grey_1, (1100, 460, 250, 80), 0)
@@ -331,6 +363,30 @@ def end_game(player_score, level_flag):
 
 def best_results():
     screen.fill('black')
+    # Устанавливаем соединение с базой данных
+    conn = sqlite3.connect('example.db')
+
+    # Создаем курсор для выполнения операций с базой данных
+    c = conn.cursor()
+
+    # Выполняем SQL-запрос для выборки значений из таблицы
+    c.execute("SELECT * FROM numbers")
+
+    # Получаем результат выборки
+    rows = c.fetchall()
+    results = sorted(rows, reverse=True)[:3]
+
+    text_font = pygame.font.Font(None, 36)
+    text = text_font.render(f'Лучшие результаты', True, 'white')
+    screen.blit(text, (width // 2 - 103, 100))
+    for i in range(len(results)):
+        text_font = pygame.font.Font(None, 36)
+        text = text_font.render(f'{results[i][0]}', True, 'white')
+        screen.blit(text, (width//2, 100*i+200))
+
+    # Закрываем соединение с базой данных
+    conn.close()
+
     for i in range(200):
         screen.fill(pygame.Color('white'),
                     (random.random() * width,
