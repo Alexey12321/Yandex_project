@@ -1,16 +1,14 @@
-import math
 import sqlite3
 import pygame
 import random
 import sys
 
+best_results = []
+
 
 def terminate():  # Функция для завершения работы игры
     pygame.quit()
     sys.exit()
-
-
-best_results = []
 
 
 def start_screen():
@@ -41,7 +39,7 @@ def start_screen():
                     elif 600 <= y <= 680:
                         level_flag = False
                     elif 800 <= y <= 880:
-                        best_results()
+                        best_results_function()
             font = pygame.font.Font(None, 36)
             txt_list = ['Начать игру', 'Уровень сложности 1', 'Уровень сложности 2', 'Лучшие результаты']
             x_txt_list = [680, 620, 620, 630]
@@ -132,7 +130,6 @@ def main_game(level_flag):
     meteorite.rect.y = 100
     starship_group.draw(screen)  # Отображение спрайта корабля на экране
 
-
     while main_running:  # Главный игровой цикл
         stars = [(star[0], (star[1] + star_speed) % height) for star in stars]  # Изменение координат звезд
         pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
@@ -186,7 +183,6 @@ def main_game(level_flag):
                 text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
             screen.blit(text_surface, (300, 500))
             player_answer = ''
-            time_add = total_time
             times = [total_time]
 
             while running:  # Дополнительный игровой цикл
@@ -199,13 +195,6 @@ def main_game(level_flag):
                 meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
                 seconds = (pygame.time.get_ticks() - start_ticks) / 1000  # Подсчёт времени
                 time_cur = total_time - int(seconds) - 1
-
-                # для движения метеорита
-                # speed = math.ceil(460 / times[-1])
-                # if time_add != time_cur:
-                #     meteorite.rect.y += speed
-                #     print(f'скорость: {speed}, time: {times[-1]} ')
-                # time_add = time_cur
 
                 if time_cur < 0:
                     time_cur = -1
@@ -309,7 +298,6 @@ def main_game(level_flag):
                     meteorite.rect.y = 100
                     starship_group.draw(screen)  # Отображение спрайта корабля на экране
                     meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
-
                     pygame.display.flip()
 
                     while run_flag:
@@ -319,8 +307,8 @@ def main_game(level_flag):
                                         (random.random() * width,
                                          random.random() * height, 2, 2))
                         collide = pygame.sprite.spritecollide(starship, meteorite_group, False)
-                        for s in collide:
-                            ship_image = pygame.image.load("data/ship2.png")  # Создание картинки для спрайта корабля
+                        for i in collide:
+                            ship_image = pygame.image.load("data/ship2.png")  # Изменение картинки спрайта корабля
                             ship_image = pygame.transform.scale(ship_image, (555, 262))
                             starship.image = ship_image
                             run_flag = False
@@ -335,13 +323,14 @@ def main_game(level_flag):
 def end_game(player_score, level_flag):
     main_font = pygame.font.Font(None, 30)
     score_text = main_font.render(f'Ваш рекорд: {player_score}', True, (155, 155, 155))
-    conn = sqlite3.connect('example.db') # Устанавливаем соединение с базой данных
-    c = conn.cursor() # Создаем курсор для выполнения операций с базой данных
-    c.execute('''CREATE TABLE IF NOT EXISTS numbers (value INTEGER)''') # Выполняем SQL-запрос для создания таблицы (если она не существует)
-    number = player_score # Вставляем число в таблицу
+    conn = sqlite3.connect('example.db')  # Устанавливаем соединение с базой данных
+    c = conn.cursor()  # Создаем курсор для выполнения операций с базой данных
+    c.execute('''CREATE TABLE IF NOT EXISTS numbers (value INTEGER)''')
+    # Выполняем SQL-запрос для создания таблицы (если она не существует)
+    number = player_score  # Вставляем число в таблицу
     c.execute("INSERT INTO numbers (value) VALUES (?)", (number,))
-    conn.commit() # Сохраняем изменения
-    conn.close() # Закрываем соединение с базой данных
+    conn.commit()  # Сохраняем изменения
+    conn.close()  # Закрываем соединение с базой данных
 
     screen.blit(score_text, (width // 2 - 80, height // 2))
     pygame.draw.rect(screen, color_grey_1, (150, 460, 250, 80), 0)
@@ -372,13 +361,13 @@ def end_game(player_score, level_flag):
                         main_game(level_flag)
 
 
-def best_results():
+def best_results_function():
     screen.fill('black')
 
-    conn = sqlite3.connect('example.db') # Устанавливаем соединение с базой данных
-    c = conn.cursor() # Создаем курсор для выполнения операций с базой данных
-    c.execute("SELECT * FROM numbers") # Выполняем SQL-запрос для выборки значений из таблицы
-    rows = c.fetchall() # Получаем результат выборки
+    conn = sqlite3.connect('example.db')  # Устанавливаем соединение с базой данных
+    c = conn.cursor()  # Создаем курсор для выполнения операций с базой данных
+    c.execute("SELECT * FROM numbers")  # Выполняем SQL-запрос для выборки значений из таблицы
+    rows = c.fetchall()  # Получаем результат выборки
     results = sorted(rows, reverse=True)[:3]
 
     text_font = pygame.font.Font(None, 36)
@@ -413,6 +402,7 @@ def best_results():
                 x, y = event.pos
                 if 900 <= y <= 980 and 1200 <= x <= 1450:
                     start_screen()
+
 
 def onboard_computer_comment(comment_flag):
     pygame.draw.rect(screen, color_display_1, (12, 12, 726, 400), 0)
