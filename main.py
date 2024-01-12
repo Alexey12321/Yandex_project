@@ -58,6 +58,7 @@ def start_screen():
 
 
 def main_game(level_flag):
+    level_counter = 0
     screen.fill('black')
     stars = [(random.randint(755, width - 1), random.randint(0, height)) for _ in range(100)]
     star_speed = 0.7  # Скорость изменения звёзд на экране
@@ -112,22 +113,13 @@ def main_game(level_flag):
     text_surface = main_font.render(f'Delete', True, color_dig)
     screen.blit(text_surface, (625, 790))
 
-    starship_group = pygame.sprite.Group()
-    meteorite_group = pygame.sprite.Group()
-    ship_image = pygame.image.load("data/ship.png")  # Создание картинки для спрайта корабля
+    ship_image = pygame.image.load("data/ship.png")  # Загрузка картинки для спрайта корабля
     ship_image = pygame.transform.scale(ship_image, (555, 262))
-    starship = pygame.sprite.Sprite(starship_group)  # Создание спрайта космического корабля
     starship.image = ship_image
     starship.rect = starship.image.get_rect()
     starship.rect.x = 865
     starship.rect.y = 700
 
-    meteorite_image = pygame.image.load("data/asteroid.png")  # Создание картинки для спрайта метеорита
-    meteorite = pygame.sprite.Sprite(meteorite_group)  # Создание спрайта метеорита
-    meteorite.image = meteorite_image
-    meteorite.rect = meteorite.image.get_rect()
-    meteorite.rect.x = 975
-    meteorite.rect.y = 100
     starship_group.draw(screen)  # Отображение спрайта корабля на экране
 
     while main_running:  # Главный игровой цикл
@@ -170,9 +162,9 @@ def main_game(level_flag):
             start_ticks = pygame.time.get_ticks()
             star_speed = 0.1  # Замедление движения звёзд во время события с метеоритом
             if level_flag:  # Начальное время в секундах
-                total_time = 2
-            else:
                 total_time = 26
+            else:
+                total_time = 36
             if level_flag:  # Вывод параметров относительно уровня сложности
                 num1, num2 = random.choice(numbers_list_level_1), random.choice(numbers_list_level_1)
                 correct_answer = num1 + num2
@@ -268,9 +260,11 @@ def main_game(level_flag):
                         else:
                             total_time += 26
                             times.append(time_cur + 26)
+                        level_counter += 1
+                        if level_flag == 3:
+                            destroying_animation()
                         if total_time > points:
                             points = total_time
-
                     enter_flag = False
                     input_numbers.clear()
                     pygame.draw.rect(screen, color_display_1, (122, 620, 504, 20), 0)
@@ -286,52 +280,43 @@ def main_game(level_flag):
                     print(correct_answer)
                     screen.blit(text_surface, (300, 500))
                 if time_cur < 0:
-                    run_flag = True
-                    screen.fill('black')
-                    for i in range(200):
-                        screen.fill(pygame.Color('white'),
-                                    (random.random() * width,
-                                     random.random() * height, 2, 2))
-                    starship.rect.x = 750
-                    starship.rect.y = 700
-                    meteorite.rect.x = 800
-                    meteorite.rect.y = 100
-                    starship_group.draw(screen)  # Отображение спрайта корабля на экране
-                    meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
-                    pygame.display.flip()
-
-                    while run_flag:
-                        screen.fill('black')
-                        for i in range(200):
-                            screen.fill(pygame.Color('white'),
-                                        (random.random() * width,
-                                         random.random() * height, 2, 2))
-                        collide = pygame.sprite.spritecollide(starship, meteorite_group, False)
-                        for s in collide:
-                            run_flag = False
-
-                        meteorite.rect.y += 2
-                        starship_group.draw(screen)  # Отображение спрайта корабля на экране
-                        meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
-                        pygame.display.flip()
                     end_game(points, level_flag)
 
 
 def end_game(player_score, level_flag):
+    run_flag = True
     screen.fill('black')
     for i in range(200):
         screen.fill(pygame.Color('white'),
                     (random.random() * width,
                      random.random() * height, 2, 2))
-    starship_group = pygame.sprite.Group()
-    ship_image = pygame.image.load("data/ship1.png")  # Создание картинки для спрайта корабля
-    ship_image = pygame.transform.scale(ship_image, (555, 262))
-    starship = pygame.sprite.Sprite(starship_group)  # Создание спрайта космического корабля
-    starship.image = ship_image
-    starship.rect = starship.image.get_rect()
-    starship.rect.x = 865
+    starship.rect.x = 750
     starship.rect.y = 700
+    meteorite.rect.x = 800
+    meteorite.rect.y = 100
     starship_group.draw(screen)  # Отображение спрайта корабля на экране
+    meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
+    pygame.display.flip()
+
+    while run_flag:
+        screen.fill('black')
+        for i in range(200):
+            screen.fill(pygame.Color('white'),
+                        (random.random() * width,
+                         random.random() * height, 2, 2))
+        collide = pygame.sprite.spritecollide(starship, meteorite_group, False)
+        for s in collide:
+            run_flag = False
+
+        meteorite.rect.y += 2
+        starship_group.draw(screen)  # Отображение спрайта корабля на экране
+        meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
+        pygame.display.flip()
+    screen.fill('black')
+    for i in range(200):
+        screen.fill(pygame.Color('white'),
+                    (random.random() * width,
+                     random.random() * height, 2, 2))
     main_font = pygame.font.Font(None, 30)
     score_text = main_font.render(f'Ваш рекорд: {player_score}', True, (155, 155, 155))
     conn = sqlite3.connect('example.db')  # Устанавливаем соединение с базой данных
@@ -342,6 +327,14 @@ def end_game(player_score, level_flag):
     c.execute("INSERT INTO numbers (value) VALUES (?)", (number,))
     conn.commit()  # Сохраняем изменения
     conn.close()  # Закрываем соединение с базой данных
+
+    ship_image = pygame.image.load("data/ship1.png")  # Загрузка другой картинки для спрайта корабля
+    ship_image = pygame.transform.scale(ship_image, (555, 262))
+    starship.image = ship_image
+    starship.rect = starship.image.get_rect()
+    starship.rect.x = 865
+    starship.rect.y = 700
+    starship_group.draw(screen)  # Отображение спрайта корабля на экране
 
     screen.blit(score_text, (width // 2 - 80, height // 2))
     pygame.draw.rect(screen, color_grey_1, (150, 460, 250, 80), 0)
@@ -372,6 +365,10 @@ def end_game(player_score, level_flag):
                         main_game(level_flag)
 
 
+def destroying_animation():
+    pass
+
+
 def best_results_function():
     screen.fill('black')
 
@@ -388,9 +385,7 @@ def best_results_function():
         text_font = pygame.font.Font(None, 36)
         text = text_font.render(f'{results[i][0]}', True, 'white')
         screen.blit(text, (width // 2, 100 * i + 200))
-
-    # Закрываем соединение с базой данных
-    conn.close()
+    conn.close()  # Закрываем соединение с базой данных
 
     for i in range(200):
         screen.fill(pygame.Color('white'),
@@ -445,16 +440,28 @@ def onboard_computer_comment(comment_flag):
 
 
 if __name__ == '__main__':
-    pygame.init()  # инициализация
-    size = width, height = 1500, 1000  # установка параметров размера окна
-    screen = pygame.display.set_mode(size)  # создание окна
-    pygame.display.set_caption('Название')  # установка названия окна
+    pygame.init()  # Инициализация
+    size = width, height = 1500, 1000  # Установка параметров размера окна
+    screen = pygame.display.set_mode(size)  # Создание окна
+    pygame.display.set_caption('Название')  # Установка названия окна
     clock = pygame.time.Clock()
-    color_dig = 'black'  # цвет символов на клавиатуре
-    color_grey_1 = (108, 108, 108)  # цвет детализации объектов
-    color_grey_2 = (138, 138, 138)  # основной цвет для крупных объектов
-    color_grey_3 = (88, 88, 88)  # цвет для теней и детализации объектов
-    color_display_1 = (36, 48, 37)  # основной цвет для экрана бортового компьютера
-    color_display_2 = (36, 104, 37)  # основной цвет для объектов экрана бортового компьютера
-    color_display_3 = (42, 174, 46)  # дополнительный цвет для объектов экрана бортового компьютера
+
+    color_dig = 'black'  # Цвет символов на клавиатуре
+    color_grey_1 = (108, 108, 108)  # Цвет детализации объектов
+    color_grey_2 = (138, 138, 138)  # Основной цвет для крупных объектов
+    color_grey_3 = (88, 88, 88)  # Цвет для теней и детализации объектов
+    color_display_1 = (36, 48, 37)  # Основной цвет для экрана бортового компьютера
+    color_display_2 = (36, 104, 37)  # Основной цвет для объектов экрана бортового компьютера
+    color_display_3 = (42, 174, 46)  # Дополнительный цвет для объектов экрана бортового компьютера
+
+    starship_group = pygame.sprite.Group()  # Создание группы спрайтов для спрайта корабля
+    meteorite_group = pygame.sprite.Group()  # Создание группы спрайтов для спрайта метеорита
+    starship = pygame.sprite.Sprite(starship_group)  # Создание спрайта космического корабля
+    meteorite_image = pygame.image.load("data/asteroid.png")  # Загрузка картинки для спрайта метеорита
+    meteorite = pygame.sprite.Sprite(meteorite_group)  # Создание спрайта метеорита
+    meteorite.image = meteorite_image
+    meteorite.rect = meteorite.image.get_rect()
+    meteorite.rect.x = 975
+    meteorite.rect.y = 100
+
     start_screen()  # Запуск главного меню игры
