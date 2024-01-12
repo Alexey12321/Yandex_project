@@ -324,7 +324,7 @@ def end_game(player_score, level_flag):
                     (random.random() * width,
                      random.random() * height, 2, 2))
     starship_group = pygame.sprite.Group()
-    ship_image = pygame.image.load("data/ship2.png")  # Создание картинки для спрайта корабля
+    ship_image = pygame.image.load("data/ship1.png")  # Создание картинки для спрайта корабля
     ship_image = pygame.transform.scale(ship_image, (555, 262))
     starship = pygame.sprite.Sprite(starship_group)  # Создание спрайта космического корабля
     starship.image = ship_image
