@@ -307,10 +307,7 @@ def main_game(level_flag):
                                         (random.random() * width,
                                          random.random() * height, 2, 2))
                         collide = pygame.sprite.spritecollide(starship, meteorite_group, False)
-                        for i in collide:
-                            ship_image = pygame.image.load("data/ship2.png")  # Изменение картинки спрайта корабля
-                            ship_image = pygame.transform.scale(ship_image, (555, 262))
-                            starship.image = ship_image
+                        for s in collide:
                             run_flag = False
 
                         meteorite.rect.y += 2
@@ -321,6 +318,20 @@ def main_game(level_flag):
 
 
 def end_game(player_score, level_flag):
+    screen.fill('black')
+    for i in range(200):
+        screen.fill(pygame.Color('white'),
+                    (random.random() * width,
+                     random.random() * height, 2, 2))
+    starship_group = pygame.sprite.Group()
+    ship_image = pygame.image.load("data/ship2.png")  # Создание картинки для спрайта корабля
+    ship_image = pygame.transform.scale(ship_image, (555, 262))
+    starship = pygame.sprite.Sprite(starship_group)  # Создание спрайта космического корабля
+    starship.image = ship_image
+    starship.rect = starship.image.get_rect()
+    starship.rect.x = 865
+    starship.rect.y = 700
+    starship_group.draw(screen)  # Отображение спрайта корабля на экране
     main_font = pygame.font.Font(None, 30)
     score_text = main_font.render(f'Ваш рекорд: {player_score}', True, (155, 155, 155))
     conn = sqlite3.connect('example.db')  # Устанавливаем соединение с базой данных
