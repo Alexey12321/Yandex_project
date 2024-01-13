@@ -473,8 +473,9 @@ def onboard_computer_comment(comment_flag):  # Функция, выводяща�
 if __name__ == '__main__':
     pygame.init()  # Инициализация
     size = width, height = 1500, 1000  # Установка параметров размера окна
-    screen = pygame.display.set_mode(size)  # Создание окна
-    pygame.display.set_caption('Название')  # Установка названия окна
+    screen = pygame.display.set_mode(size)  # Создание окна игры
+    pygame.display.set_caption('Spacemath')  # Установка названия окна игры
+    pygame.display.set_icon(pygame.image.load("data/icon.ico"))  # Установка иконки окна игры
     clock = pygame.time.Clock()
 
     color_dig = 'black'  # Цвет символов на клавиатуре
