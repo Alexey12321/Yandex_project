@@ -58,14 +58,13 @@ def start_screen():
 
 
 def main_game(level_flag):
-    level_counter = 0
     screen.fill('black')
-    stars = [(random.randint(755, width - 1), random.randint(0, height)) for _ in range(100)]
     star_speed = 0.7  # Скорость изменения звёзд на экране
-    main_running, points = True, 0
+    main_running, points, level_counter, lose_counter = True, 0, 0, 2
     main_font = pygame.font.Font(None, 36)
-    numbers_list_level_1 = [i for i in range(11, 999)] + [i for i in range(-999, -11)]
+    numbers_list_level_1 = [i for i in range(11, 999)]
     numbers_list_level_2 = [i for i in range(11, 99)] + [i for i in range(-99, -11)]
+    stars = [(random.randint(755, width - 1), random.randint(0, height)) for _ in range(100)]
     start_ticks = pygame.time.get_ticks()
     input_numbers, minus_or_plus_flag, enter_flag = list(), True, False  # переменные для работы с ответами пользователя
     meteorite_flag = False
@@ -129,9 +128,9 @@ def main_game(level_flag):
             pygame.draw.circle(screen, (255, 255, 255), star, 1)
         starship_group.draw(screen)  # Отображение спрайта корабля на экране
         pygame.display.flip()
+        
         if not meteorite_flag:
-            # Подсчёт времени
-            total_time = 60
+            total_time = 60  # Подсчёт времени
             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
             start_time = total_time - int(seconds) - 1
             pygame.draw.rect(screen, color_display_2, (85, 675, 590, 4), 0)
@@ -178,7 +177,6 @@ def main_game(level_flag):
             times = [total_time]
 
             while running:  # Дополнительный игровой цикл
-
                 stars = [(star[0], (star[1] + star_speed) % height) for star in stars]  # Изменение координат звезд
                 pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
                 for star in stars:
@@ -187,7 +185,6 @@ def main_game(level_flag):
                 meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
                 seconds = (pygame.time.get_ticks() - start_ticks) / 1000  # Подсчёт времени
                 time_cur = total_time - int(seconds) - 1
-
                 if time_cur < 0:
                     time_cur = -1
                 if time_cur >= 0:
@@ -261,10 +258,18 @@ def main_game(level_flag):
                             total_time += 26
                             times.append(time_cur + 26)
                         level_counter += 1
-                        if level_flag == 3:
-                            destroying_animation()
+                        if level_counter == 3:
+                            level_counter, lose_counter = 0, 0
+                            stars = destroying_animation(stars)
+                            total_time += 8
                         if total_time > points:
                             points = total_time
+                    else:
+                        lose_counter -= 1
+                    if lose_counter == 0:
+                        lose_counter = 2
+                        onboard_computer_comment(3)
+                        total_time -= 5
                     enter_flag = False
                     input_numbers.clear()
                     pygame.draw.rect(screen, color_display_1, (122, 620, 504, 20), 0)
@@ -277,7 +282,6 @@ def main_game(level_flag):
                         num1, num2 = random.choice(numbers_list_level_2), random.choice(numbers_list_level_2)
                         correct_answer = num1 * num2
                         text_surface = main_font.render(f'{num1} * {num2} = ?', True, color_display_3)
-                    print(correct_answer)
                     screen.blit(text_surface, (300, 500))
                 if time_cur < 0:
                     end_game(points, level_flag)
@@ -285,11 +289,10 @@ def main_game(level_flag):
 
 def end_game(player_score, level_flag):
     run_flag = True
+    stars = [(random.randint(0, width - 1), random.randint(0, height)) for _ in range(100)]
     screen.fill('black')
-    for i in range(200):
-        screen.fill(pygame.Color('white'),
-                    (random.random() * width,
-                     random.random() * height, 2, 2))
+    for i in range(100):
+        screen.fill(pygame.Color('white'), (stars[i][0], stars[i][1], 2, 2))
     starship.rect.x = 750
     starship.rect.y = 700
     meteorite.rect.x = 800
@@ -300,23 +303,18 @@ def end_game(player_score, level_flag):
 
     while run_flag:
         screen.fill('black')
-        for i in range(200):
-            screen.fill(pygame.Color('white'),
-                        (random.random() * width,
-                         random.random() * height, 2, 2))
-        collide = pygame.sprite.spritecollide(starship, meteorite_group, False)
-        for s in collide:
+        for i in range(100):
+            screen.fill(pygame.Color('white'), (stars[i][0], stars[i][1], 2, 2))
+        collide = pygame.sprite.groupcollide(starship_group, meteorite_group, False, False)
+        for _ in collide:
             run_flag = False
-
         meteorite.rect.y += 2
         starship_group.draw(screen)  # Отображение спрайта корабля на экране
         meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
         pygame.display.flip()
     screen.fill('black')
-    for i in range(200):
-        screen.fill(pygame.Color('white'),
-                    (random.random() * width,
-                     random.random() * height, 2, 2))
+    for i in range(100):
+        screen.fill(pygame.Color('white'), (stars[i][0], stars[i][1], 2, 2))
     main_font = pygame.font.Font(None, 30)
     score_text = main_font.render(f'Ваш рекорд: {player_score}', True, (155, 155, 155))
     conn = sqlite3.connect('example.db')  # Устанавливаем соединение с базой данных
@@ -365,19 +363,44 @@ def end_game(player_score, level_flag):
                         main_game(level_flag)
 
 
-def destroying_animation():
-    pass
+def destroying_animation(stars):
+    run_flag_1, run_flag_2, counter = True, True, 0
+    laser.rect.x = 1100
+    laser.rect.y = 550
+    while run_flag_1:
+        pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
+        for i in range(100):
+            screen.fill(pygame.Color('white'), (stars[i][0], stars[i][1], 2, 2))
+        starship_group.draw(screen)  # Отображение спрайта корабля на экране
+        meteorite_group.draw(screen)  # Отображение спрайта метеорита на экране
+        laser_group.draw(screen)  # Отображение спрайта лазера на экране
+        pygame.display.flip()
+        collide = pygame.sprite.groupcollide(laser_group, meteorite_group, False, False)
+        for _ in collide:
+            run_flag_1 = False
+        laser.rect.y -= 2
+    onboard_computer_comment(4)
+    while run_flag_2:
+        counter += 1
+        stars = [(star[0], (star[1] + 0.1) % height) for star in stars]  # Изменение координат звезд
+        pygame.draw.rect(screen, 'black', (750, 0, 750, 1000), 0)
+        for star in stars:
+            pygame.draw.circle(screen, (255, 255, 255), star, 1)
+        starship_group.draw(screen)  # Отображение спрайта корабля на экране
+        pygame.display.flip()
+        if counter == 2000:
+            run_flag_2 = False
+    return stars
 
 
 def best_results_function():
-    screen.fill('black')
-
     conn = sqlite3.connect('example.db')  # Устанавливаем соединение с базой данных
     c = conn.cursor()  # Создаем курсор для выполнения операций с базой данных
     c.execute("SELECT * FROM numbers")  # Выполняем SQL-запрос для выборки значений из таблицы
     rows = c.fetchall()  # Получаем результат выборки
     results = sorted(rows, reverse=True)[:3]
 
+    screen.fill('black')
     text_font = pygame.font.Font(None, 36)
     text = text_font.render(f'Лучшие результаты', True, 'white')
     screen.blit(text, (width // 2 - 103, 100))
@@ -431,7 +454,11 @@ def onboard_computer_comment(comment_flag):
                 ['Сэр, похоже, что нам придётся отстреливаться самостоятельно!',
                  'Тогда я буду готовить главное орудие, а вы его настраивать под координаты',
                  'угрожающего нам астероида, договорились?',
-                 'А, у вас всё равно нет выбора, тогда начинаем через 3.. 2.. 1..']]
+                 'А, у вас всё равно нет выбора, тогда начинаем через 3.. 2.. 1..'], ['Сэр, время поджимает!',
+                                                                                      '(Штраф 5 секунд '
+                                                                                      'за пропуск двух примеров)'],
+                ['Отличная работа, сэр, мы справились с целью!', 'О, нет! К нам приближается ещё один астероид!',
+                 'Работаем по той же схеме.']]
     y = 16
     for i in txt_list[comment_flag]:
         text_surface = text_font.render(i, True, color_display_3)
@@ -456,6 +483,7 @@ if __name__ == '__main__':
 
     starship_group = pygame.sprite.Group()  # Создание группы спрайтов для спрайта корабля
     meteorite_group = pygame.sprite.Group()  # Создание группы спрайтов для спрайта метеорита
+    laser_group = pygame.sprite.Group()  # Создание группы спрайтов для спрайта
     starship = pygame.sprite.Sprite(starship_group)  # Создание спрайта космического корабля
     meteorite_image = pygame.image.load("data/asteroid.png")  # Загрузка картинки для спрайта метеорита
     meteorite = pygame.sprite.Sprite(meteorite_group)  # Создание спрайта метеорита
@@ -463,5 +491,10 @@ if __name__ == '__main__':
     meteorite.rect = meteorite.image.get_rect()
     meteorite.rect.x = 975
     meteorite.rect.y = 100
+    laser_image = pygame.image.load("data/laser.png")  # Загрузка картинки для спрайта
+    laser_image = pygame.transform.scale(laser_image, (75, 250))
+    laser = pygame.sprite.Sprite(laser_group)  # Создание спрайта
+    laser.image = laser_image
+    laser.rect = laser.image.get_rect()
 
     start_screen()  # Запуск главного меню игры
